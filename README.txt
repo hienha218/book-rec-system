@@ -7,10 +7,6 @@
 
 
 ## To test, run the Hello.py file using:
-```
-streamlit run Hello.py
-```
+> streamlit run Hello.py
 or
-```
-streamlit run [directory_path]/Hello.py
-```
+> streamlit run [directory_path]/Hello.py
