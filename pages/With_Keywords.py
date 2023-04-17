@@ -3,7 +3,6 @@ import pandas as pd
 import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-
 def rm_punc(text):
     return re.sub(r'\W+|_', ' ', text.lower())
 
@@ -46,7 +45,7 @@ tfidf_vec = process_word_matrix(tfidf_df_preview.copy())
 def findBookWithSimilarTerm(term):
   res = set()
   for i in range(len(tfidf_vec)):
-    if (tfidf_vec.iloc[i]['term'] == term) or (tfidf_vec.iloc[i]['term'] in term) or (term in tfidf_vec.iloc[i]['term']):
+    if (tfidf_vec.iloc[i]['term'] == term) or (tfidf_vec.iloc[i]['term'] in term) or (term in tfidf_vec.iloc[i]['term'].split()):
       res.add(tfidf_vec.iloc[i]['book'])
   return res
 
