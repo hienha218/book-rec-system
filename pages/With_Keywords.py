@@ -7,7 +7,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 def rm_punc(text):
     return re.sub(r'\W+|_', ' ', text.lower())
 
-data = 'keywords1.csv'
+data = 'keywords3.csv'
 model_data = pd.read_csv(data)
 tfidf = TfidfVectorizer(analyzer = 'word',
                         min_df=1,
@@ -18,6 +18,7 @@ tfidf = TfidfVectorizer(analyzer = 'word',
 tfidf_encoding = tfidf.fit_transform(model_data["keywords"])
 
 tfidf_df = pd.DataFrame(tfidf_encoding.toarray(), index=model_data["book_title"], columns=tfidf.get_feature_names_out())
+
 # Sort maximum tf-idf total score
 tfidf_df["total"]= tfidf_df.sum(axis=1)
 tfidf_df = tfidf_df.sort_values("total", ascending=False)
@@ -45,7 +46,7 @@ tfidf_vec = process_word_matrix(tfidf_df_preview.copy())
 def findBookWithSimilarTerm(term):
   res = set()
   for i in range(len(tfidf_vec)):
-    if tfidf_vec.iloc[i]['term'] == term or tfidf_vec.iloc[i]['term'] in term or term in tfidf_vec.iloc[i]['term']:
+    if (tfidf_vec.iloc[i]['term'] == term) or (tfidf_vec.iloc[i]['term'] in term) or (term in tfidf_vec.iloc[i]['term']):
       res.add(tfidf_vec.iloc[i]['book'])
   return res
 
@@ -56,18 +57,28 @@ def findBookWithListofSimilarTerms(listTerm):
     result = result.union(tempList)
   return list(result)
 
-st.title("Book Recommendatation system")
-option = st.text_input("Type your query")
+st.title("Book Recommendatation Using Keywords")
+st.markdown("🧐 How to use this recommender:\n"
+            "- Give us some keyword(s) you want to see in your recommendations\n"
+            "- Give us the number of books that you want to get\n"
+            "- Click 'Recommend Me' to get your results\n"
+            )
+option = st.text_input("Your keyword(s):")
 nums = st.number_input("# of recommendations", 3)
 
 def book_recommend(query, num):
-    results = findBookWithListofSimilarTerms(query)
-    r = []
-    for i in range(num):
-        r.append("{}".format(model_data[model_data['book_title']==results[i]].book_title))
-    return r
+    results = findBookWithListofSimilarTerms(query)[:num]
+    return model_data.loc[model_data['book_title'].isin(results), ['book_title_init', 'book_authors_init', 'image_url']]
+
+def path_to_image_html(path):
+    return '<img src="' + path + '" width="150" >'
 
 if st.button('Recommend Me'):
-    st.write('Books Recomended for you are:')
+    st.write('Books recomended for you are:')
     option = rm_punc(option).split(" ")
-    st.dataframe(data=book_recommend(option, nums))
+    res = book_recommend(option, nums)
+    st.markdown(
+        res.to_html(escape=False, formatters=dict(image_url=path_to_image_html)),
+        unsafe_allow_html=True,
+        )
+

@@ -1,10 +1,9 @@
 import streamlit as st
 import pandas as pd
-import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-data = 'keywords1.csv'
+data = 'keywords3.csv'
 model_data = pd.read_csv(data)
 tfidf = TfidfVectorizer(analyzer = 'word',
                         min_df=1,
@@ -22,21 +21,36 @@ def recommend_books_similar_to(book_name, n=5, cosine_sim_mat=book_cosine_sim):
     # get index of the input book
     input_idx = books[books == book_name].index[0]   
     # Find top n similar books with decreasing order of similarity score
+    # [1:6] to exclude 0 (index 0 is the input book itself)
     top_n_books_idx = list(pd.Series(cosine_sim_mat[input_idx]).sort_values(ascending = False).iloc[1:n+1].index)
-    # [1:6] to exclude 0 (index 0 is the input movie itself)
     recommended_books = [books[i] for i in top_n_books_idx]
-    return recommended_books
+
+    res = model_data.loc[model_data['book_title'].isin(recommended_books), ['book_title', 'book_title_init', 'book_authors_init', 'image_url']]
+    res_sorted = res.set_index('book_title').reindex(index = recommended_books).reset_index()
+    return res_sorted[['book_title_init', 'book_authors_init', 'image_url']]
 
 def title_reformat(title):
     return title.lower().strip().replace(' ', '_')
 
-st.title("Book Recommendatation system")
+st.title("Book Recommendatation using Similar Book")
+st.markdown("🧐 How to use this recommender:\n"
+            "- Choose a book in our database\n"
+            "- Give us the number of books that you want to get\n"
+            "- Click 'Recommend Me' to get your results\n"
+            )
 option = st.selectbox(
     'Which book is your reference point?',
     model_data['book_title'].sort_values())
 nums = st.number_input("# of recommendations", 3)
 
+def path_to_image_html(path):
+    return '<img src="' + path + '" width="150" >'
+
 if st.button('Recommend Me'):
     st.write('Books Recomended for you are:')
     option = title_reformat(option)
-    st.dataframe(data=recommend_books_similar_to(option, nums))
+    res = recommend_books_similar_to(option, nums)
+    st.markdown(
+        res.to_html(escape=False, formatters=dict(image_url=path_to_image_html)),
+        unsafe_allow_html=True,
+        )

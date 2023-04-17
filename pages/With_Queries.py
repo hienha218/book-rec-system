@@ -1,10 +1,9 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-data = 'keywords1.csv'
+data = 'keywords3.csv'
 model_data = pd.read_csv(data)
 tfidf = TfidfVectorizer(analyzer = 'word',
                         min_df=1,
@@ -14,7 +13,12 @@ tfidf = TfidfVectorizer(analyzer = 'word',
                         token_pattern=r"(?u)\S\S+")
 tfidf_encoding = tfidf.fit_transform(model_data["keywords"])
 
-st.title("Book Recommendatation system")
+st.title("Book Recommendatation using Descriptions")
+st.markdown("🧐 How to use this recommender:\n"
+            "- Describe the book (topic? story?) that you want to read about\n"
+            "- Give us the number of books that you want to get\n"
+            "- Click 'Recommend Me' to get your results\n"
+            )
 option = st.text_input("Type your query")
 nums = st.number_input("# of recommendations", 3)
 
@@ -28,12 +32,25 @@ def book_recommend(query, num):
         for elem in i[0]:
                 elem_list.append(elem)
 
-    r = []
+    # get a list of all titles in order of most relevant to least
+    titles = []
     for i in range(num):
-        r.append("{}".format(model_data['book_title'].loc[elem_list.index(max(elem_list)):elem_list.index(max(elem_list))]))
+        titles.append("{}".format(model_data['book_title'].loc[elem_list.index(max(elem_list))]))
         elem_list.pop(elem_list.index(max(elem_list)))
-    return r
+
+    # return the dataframe in order of relevancy
+    res = model_data.loc[model_data['book_title'].isin(titles), ['book_title', 'book_title_init', 'book_authors_init', 'image_url']]
+    res_sorted = res.set_index('book_title').reindex(index = titles).reset_index()
+    return res_sorted[['book_title_init', 'book_authors_init', 'image_url']]
+
+def path_to_image_html(path):
+    return '<img src="' + path + '" width="150" >'
+
 
 if st.button('Recommend Me'):
-     st.write('Books Recomended for you are:')
-     st.dataframe(data=book_recommend(option, nums))
+    st.write('Books Recomended for you are:')
+    res = book_recommend(option, nums)
+    st.markdown(
+        res.to_html(escape=False, formatters=dict(image_url=path_to_image_html)),
+        unsafe_allow_html=True,
+        )
