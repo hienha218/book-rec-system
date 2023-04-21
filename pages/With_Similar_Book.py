@@ -18,6 +18,7 @@ book_cosine_sim = cosine_similarity(tfidf_encoding, tfidf_encoding)
 books = pd.Series(model_data['book_title'])
 
 def recommend_books_similar_to(book_name, n=5, cosine_sim_mat=book_cosine_sim):
+    print(book_name)
     # get index of the input book
     input_idx = books[books == book_name].index[0]   
     # Find top n similar books with decreasing order of similarity score
@@ -29,8 +30,6 @@ def recommend_books_similar_to(book_name, n=5, cosine_sim_mat=book_cosine_sim):
     res_sorted = res.set_index('book_title').reindex(index = recommended_books).reset_index()
     return res_sorted[['book_title_init', 'book_authors_init', 'image_url']]
 
-def title_reformat(title):
-    return title.lower().strip().replace(' ', '_')
 
 st.title("Book Recommendatation using Similar Book")
 st.markdown("🧐 How to use this recommender:\n"
@@ -38,9 +37,9 @@ st.markdown("🧐 How to use this recommender:\n"
             "- Give us the number of books that you want to get\n"
             "- Click 'Recommend Me' to get your results\n"
             )
-option = st.selectbox(
+option_choice = st.selectbox(
     'Which book is your reference point?',
-    model_data['book_title'].sort_values())
+    model_data['book_title_init'].sort_values())
 nums = st.number_input("# of recommendations", 3)
 
 def path_to_image_html(path):
@@ -48,7 +47,7 @@ def path_to_image_html(path):
 
 if st.button('Recommend Me'):
     st.write('Books Recomended for you are:')
-    option = title_reformat(option)
+    option = model_data.loc[model_data['book_title_init']==option_choice, 'book_title'].values[0]
     res = recommend_books_similar_to(option, nums)
     st.markdown(
         res.to_html(escape=False, formatters=dict(image_url=path_to_image_html)),
