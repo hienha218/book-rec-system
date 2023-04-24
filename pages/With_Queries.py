@@ -41,7 +41,8 @@ def book_recommend(query, num):
     # return the dataframe in order of relevancy
     res = model_data.loc[model_data['book_title'].isin(titles), ['book_title', 'book_title_init', 'book_authors_init', 'image_url']]
     res_sorted = res.set_index('book_title').reindex(index = titles).reset_index()
-    return res_sorted[['book_title_init', 'book_authors_init', 'image_url']]
+    df = res_sorted.rename(columns = {'book_title_init': 'Book Title', 'book_authors_init': 'Author(s)', 'image_url': 'Cover'})
+    return df[['Book Title', 'Author(s)', 'Cover']]
 
 def path_to_image_html(path):
     return '<img src="' + path + '" width="150" >'
@@ -51,6 +52,6 @@ if st.button('Recommend Me'):
     st.write('Books Recomended for you are:')
     res = book_recommend(option, nums)
     st.markdown(
-        res.to_html(escape=False, formatters=dict(image_url=path_to_image_html)),
+        res.to_html(escape=False, formatters=dict(Cover=path_to_image_html)),
         unsafe_allow_html=True,
         )

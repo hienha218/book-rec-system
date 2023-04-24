@@ -28,7 +28,8 @@ def recommend_books_similar_to(book_name, n=5, cosine_sim_mat=book_cosine_sim):
 
     res = model_data.loc[model_data['book_title'].isin(recommended_books), ['book_title', 'book_title_init', 'book_authors_init', 'image_url']]
     res_sorted = res.set_index('book_title').reindex(index = recommended_books).reset_index()
-    return res_sorted[['book_title_init', 'book_authors_init', 'image_url']]
+    df = res_sorted.rename(columns = {'book_title_init': 'Book Title', 'book_authors_init': 'Author(s)', 'image_url': 'Cover'})
+    return df[['Book Title', 'Author(s)', 'Cover']]
 
 
 st.title("Book Recommendatation using Similar Book")
@@ -50,6 +51,6 @@ if st.button('Recommend Me'):
     option = model_data.loc[model_data['book_title_init']==option_choice, 'book_title'].values[0]
     res = recommend_books_similar_to(option, nums)
     st.markdown(
-        res.to_html(escape=False, formatters=dict(image_url=path_to_image_html)),
+        res.to_html(escape=False, formatters=dict(Cover=path_to_image_html)),
         unsafe_allow_html=True,
         )

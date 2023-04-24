@@ -66,8 +66,10 @@ option = st.text_input("Your keyword(s):")
 nums = st.number_input("# of recommendations", 3)
 
 def book_recommend(query, num):
-    results = findBookWithListofSimilarTerms(query)[:num]
-    return model_data.loc[model_data['book_title'].isin(results), ['book_title_init', 'book_authors_init', 'image_url']]
+  results = findBookWithListofSimilarTerms(query)[:num]
+  res_sorted = model_data.loc[model_data['book_title'].isin(results), ['book_title_init', 'book_authors_init', 'image_url']]
+  df = res_sorted.rename(columns = {'book_title_init': 'Book Title', 'book_authors_init': 'Author(s)', 'image_url': 'Cover'})
+  return df[['Book Title', 'Author(s)', 'Cover']]
 
 def path_to_image_html(path):
     return '<img src="' + path + '" width="150" >'
@@ -77,7 +79,7 @@ if st.button('Recommend Me'):
     option = rm_punc(option).split(" ")
     res = book_recommend(option, nums)
     st.markdown(
-        res.to_html(escape=False, formatters=dict(image_url=path_to_image_html)),
+        res.to_html(escape=False, formatters=dict(Cover=path_to_image_html)),
         unsafe_allow_html=True,
         )
 
