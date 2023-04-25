@@ -56,7 +56,7 @@ def findBookWithListofSimilarTerms(listTerm):
     result = result.union(tempList)
   return list(result)
 
-st.title("Book Recommendatation Using Keywords")
+st.title("Book Recommendation Using Keywords")
 st.markdown("🧐 How to use this recommender:\n"
             "- Give us some keyword(s) you want to see in your recommendations (separated by a ',')\n"
             "- Give us the number of books that you want to get\n"

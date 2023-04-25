@@ -32,7 +32,7 @@ def recommend_books_similar_to(book_name, n=5, cosine_sim_mat=book_cosine_sim):
     return df[['Book Title', 'Author(s)', 'Cover']]
 
 
-st.title("Book Recommendatation using Similar Book")
+st.title("Book Recommendation using Similar Book")
 st.markdown("🧐 How to use this recommender:\n"
             "- Choose a book in our database\n"
             "- Give us the number of books that you want to get\n"

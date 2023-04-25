@@ -14,7 +14,7 @@ tfidf = TfidfVectorizer(analyzer = 'word',
                         token_pattern=r"(?u)\S\S+")
 tfidf_encoding = tfidf.fit_transform(model_data["book_desc"])
 
-st.title("Book Recommendatation using Descriptions")
+st.title("Book Recommendation using Descriptions")
 st.markdown("🧐 How to use this recommender:\n"
             "- Describe the book (topic? story?) that you want to read about\n"
             "- Give us the number of books that you want to get\n"
