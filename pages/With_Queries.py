@@ -3,15 +3,16 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-data = 'keywords3.csv'
-model_data = pd.read_csv(data)
+data = 'preprocessed_april25th.csv'
+model_data = pd.read_csv(data, usecols=["book_title", "book_desc", "image_url", "book_title_init", "book_authors_init"])
+model_data = model_data[:3000]
 tfidf = TfidfVectorizer(analyzer = 'word',
                         min_df=1,
                         max_df = 0.99,
                         stop_words="english",
                         encoding = 'utf-8', 
                         token_pattern=r"(?u)\S\S+")
-tfidf_encoding = tfidf.fit_transform(model_data["keywords"])
+tfidf_encoding = tfidf.fit_transform(model_data["book_desc"])
 
 st.title("Book Recommendatation using Descriptions")
 st.markdown("🧐 How to use this recommender:\n"
